@@ -285,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void setAnimation()
     {
         newtonCradleLoading.start();
-        newtonCradleLoading.setLoadingColor(R.color.lightBlue);
+        newtonCradleLoading.setLoadingColor(R.color.colorAccent);
 
         new CountDownTimer(5000, 1000) {
 
