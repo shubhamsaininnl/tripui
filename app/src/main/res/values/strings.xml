@@ -4,4 +4,10 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="my_app_id">trippersapp-efzmy</string>
+    <string name="pin_content_desc">PIN input field</string>
+    <string name="pin_label_text">PIN</string>
+    <string name="register_tag"><u>Regsiter</u></string>
+    <string name="login_tag"><u>Login</u></string>
+    <string name="about_tag"><u>What is Trippers App?</u></string>
+    <string name="about_app">Trippers is a App which makes your trip hassle free by carrying your luggage and place on a safe location with secure lock.</string>
 </resources>

@@ -287,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         newtonCradleLoading.start();
         newtonCradleLoading.setLoadingColor(R.color.colorAccent);
 
-        new CountDownTimer(5000, 1000) {
+        new CountDownTimer(3000, 1000) {
 
             public void onTick(long millisUntilFinished) {
                 //mTextField.setText("seconds remaining: " + millisUntilFinished / 1000);
@@ -296,10 +296,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onFinish() {
                 //mTextField.setText("done!");
                 newtonCradleLoading.setVisibility(View.GONE);
-                main_fragment fragment= new main_fragment();
                 FragmentManager fm = getSupportFragmentManager();
-                fm.beginTransaction().add(R.id.fragment,fragment).commit();
 
+
+                //adding launching_fragment
+                launching_fragment lFragment= new launching_fragment();
+                fm.beginTransaction().add(R.id.fragment, lFragment).commit();
+
+               //Registering users for first time
+              //  main_fragment fragment= new main_fragment();
+                //fm.beginTransaction().add(R.id.fragment,fragment).commit();
+
+                //Login registered users
             }
         }.start();
 

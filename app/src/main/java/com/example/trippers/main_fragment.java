@@ -1,5 +1,6 @@
 package com.example.trippers;
 
+import android.app.DownloadManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -11,11 +12,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.JsonObjectRequest;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.Credential;
 import com.google.android.gms.auth.api.credentials.HintRequest;
@@ -25,16 +40,25 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hbb20.CountryCodePicker;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+
 import static android.app.Activity.RESULT_OK;
+import static android.content.Context.LOCATION_SERVICE;
 
 public class main_fragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
         TextInputEditText eName, ePhoneNumber;
-        MaterialButton getOtp;
+        MaterialButton register;
         View view;
         String mobNumber;
         CountryCodePicker ccp;
         TextView text123;
+
         private static int flag=0;
         private final static int RESOLVE_HINT = 1011;
 
@@ -42,7 +66,7 @@ public class main_fragment extends Fragment implements GoogleApiClient.Connectio
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             view=  inflater.inflate(R.layout.fragment_main, container, false);
-            getOtp= (MaterialButton) view.findViewById(R.id.getOtp);
+            register= (MaterialButton) view.findViewById(R.id.register);
             eName= (TextInputEditText) view.findViewById(R.id.eName);
             ePhoneNumber= (TextInputEditText) view.findViewById(R.id.ePhoneNumber);
           //  ccp= (CountryCodePicker) view.findViewById(R.id.ccp);
@@ -61,18 +85,84 @@ public class main_fragment extends Fragment implements GoogleApiClient.Connectio
                 }
             });
 
-            getOtp.setOnClickListener(new View.OnClickListener() {
+            register.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    confirmOtpFragment fragment= new confirmOtpFragment();
+                    getOneTimePassword();
+
+                   /* confirmOtpFragment fragment= new confirmOtpFragment();
                     FragmentManager fm = getFragmentManager();
-                    fm.beginTransaction().replace(R.id.fragment,fragment).commit();
+                    fm.beginTransaction().replace(R.id.fragment,fragment).commit();*/
 
                 }
             });
 
             return  view;
 
+        }
+
+        public void getOneTimePassword() {
+                String name = eName.getText().toString();
+                String phone = ePhoneNumber.getText().toString();
+
+                if (phone.length() == 0) {
+                    Toast.makeText(getContext(), "Please Enter Phone Number", Toast.LENGTH_LONG).show();
+                } else if (phone.length() > 0 && phone.length() <= 9) {
+                    Toast.makeText(getContext(), "Please Enter Valid Number", Toast.LENGTH_LONG).show();
+                }
+
+                else {
+                    try {
+                        phone = "91" + phone;
+                        RequestQueue requestQueue = Volley.newRequestQueue(getContext());
+                        String URL = "https://trip-planners.herokuapp.com/api/users/register";
+                        JSONObject jsonBody = new JSONObject();
+                        jsonBody.put("name", name);
+                        jsonBody.put("phone", phone);
+                        final String requestBody = jsonBody.toString();
+
+                        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                Log.i("Shubham_", response);
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.e("Shubham_", error.toString());
+                            }
+                        }) {
+                            @Override
+                            public String getBodyContentType() {
+                                return "application/json; charset=utf-8";
+                            }
+
+                            @Override
+                            public byte[] getBody() throws AuthFailureError {
+                                try {
+                                    return requestBody == null ? null : requestBody.getBytes("utf-8");
+                                } catch (UnsupportedEncodingException uee) {
+                                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", requestBody, "utf-8");
+                                    return null;
+                                }
+                            }
+
+                            @Override
+                            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                                String responseString = "";
+                                if (response != null) {
+                                    responseString = String.valueOf(response.statusCode);
+                                    // can get more details such as response.headers
+                                }
+                                return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
+                            }
+                        };
+
+                        requestQueue.add(stringRequest);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
         }
 
     protected void requestPhoneNumber() {
